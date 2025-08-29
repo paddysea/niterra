@@ -263,6 +263,7 @@
         
         <label>Q3：ボイラ台数
           <select id="boilerCount">
+            <option value="">選択してください</option>
             <option value="2">1～3台</option>
             <option value="5">4～10台</option>
             <option value="11">11台以上</option>
@@ -271,6 +272,7 @@
         
         <label>Q4：ボイラサイズ
           <select id="boilerSize">
+            <option value="">選択してください</option>
             <option value="551">小型（～1t/h程度）</option>
             <option value="2203">中型（1～5t/h程度）</option>
             <option value="5507">大型（5t/h以上）</option>
@@ -279,6 +281,7 @@
         
         <label>Q5： ボイラの使用工程
           <select id="boilerUsecase">
+            <option value="">選択してください</option>
             <option value="空調・暖房用">空調・暖房用</option>
             <option value="製造プロセス用（蒸気工程など）">製造プロセス用（蒸気工程など）</option>
           </select>
@@ -286,6 +289,7 @@
         
         <label>Q6：稼働率：
           <select id="operationRate">
+            <option value="">選択してください</option>
             <option value="0.58">90%以上</option>
             <option value="0.40">50～89%</option>
             <option value="0.23">49%以下</option>
@@ -306,6 +310,11 @@
   </div>
 
   <script>
+    function formatNumber(value) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num.toLocaleString('ja-JP') : value;
+    }
+
     function calculate() {
       const industry = document.getElementById('industry').value;
       const boilerType = document.getElementById('boilerType').value;
@@ -315,8 +324,17 @@
       const boilerSize = parseInt(document.getElementById('boilerSize').value);
       const operationRate = parseFloat(document.getElementById('operationRate').value);
 
-      if (!boilerType || !fuelType) {
-        alert('ボイラの種類と燃料を選択してください。');
+      // 必須入力チェック（空選択・NaN を検知）
+      const missingFields = [];
+      if (!boilerType) missingFields.push('ボイラの種類');
+      if (!fuelType) missingFields.push('燃料');
+      if (Number.isNaN(boilerCount)) missingFields.push('ボイラ台数');
+      if (Number.isNaN(boilerSize)) missingFields.push('ボイラサイズ');
+      if (!boilerUsecase) missingFields.push('使用工程');
+      if (Number.isNaN(operationRate)) missingFields.push('稼働率');
+
+      if (missingFields.length > 0) {
+        alert(`${missingFields.join('・')} を選択してください。`);
         return;
       }
 
@@ -390,9 +408,9 @@
           <h3>計算係数</h3>
           <dl>
             <dt>ボイラ台数係数</dt>
-            <dd>${boilerCount}台</dd>
+            <dd>${formatNumber(boilerCount)}台</dd>
             <dt>ボイラサイズ係数</dt>
-            <dd>${boilerSize} CO₂-t/年</dd>
+            <dd>${formatNumber(boilerSize)} CO₂-t/年</dd>
             <dt>稼働率補正</dt>
             <dd>${(operationRate * 100).toFixed(0)}%</dd>
           </dl>
@@ -402,11 +420,11 @@
           <h3>CO₂排出量・回収可能量 年間目安</h3>
           <dl>
             <dt>排出量</dt>
-            <dd>${Math.round(emission)} t/年</dd>
+            <dd>${formatNumber(Math.round(emission))} t/年</dd>
           </dl>
           <dl>
             <dt>回収量</dt>
-            <dd>${Math.round(recovery)} t/年</dd>
+            <dd>${formatNumber(Math.round(recovery))} t/年</dd>
           </dl>
         </div>
        
@@ -424,12 +442,12 @@
           <div class="result-item-flex">
             <dl>
               <dt>CO₂削減量</dt>
-              <dd><span class="highlight-value">${Math.round(recovery)}</span> t/年</dd>
+              <dd><span class="highlight-value">${formatNumber(Math.round(recovery))}</span> t/年</dd>
             </dl>
             <p class="eq">&#8660;</p>
             <dl>
               <dt>CO₂販売金額</dt>
-              <dd><span class="highlight-value">${(Math.round(value/10000)).toLocaleString()}</span> 万円/年</dd>
+              <dd><span class="highlight-value">${formatNumber(Math.round(value/10000))}</span> 万円/年</dd>
             </dl>
           </div>
         </div>
